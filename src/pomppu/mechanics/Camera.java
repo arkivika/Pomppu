@@ -13,6 +13,7 @@ import pomppu.graphics.*;
  */
 public class Camera {
 	
+	static final double HORIZONTAL_BORDER_OFFSET = 1.35;
 	static final double FOLLOW_BORDER_SIZE = 0.4;
 	static final double FOLLOW_SPEED = 6.0;
 
@@ -142,10 +143,10 @@ public class Camera {
 		double d_x = obj.getX()+(obj.getAnimation().getWidth()/2) - x;
 		double d_y = obj.getY()+(obj.getAnimation().getHeight()/2) - y;
 		
-		if(d_x < screen.getWidth() * FOLLOW_BORDER_SIZE)
+		if(d_x < screen.getWidth() * FOLLOW_BORDER_SIZE * HORIZONTAL_BORDER_OFFSET)
 			x -= (screen.getWidth() * FOLLOW_BORDER_SIZE - d_x)/FOLLOW_SPEED;
 		 
-		else if(d_x > screen.getWidth() - screen.getWidth() * FOLLOW_BORDER_SIZE)
+		else if(d_x > screen.getWidth() - screen.getWidth() * FOLLOW_BORDER_SIZE / HORIZONTAL_BORDER_OFFSET)
 			x += (d_x - (screen.getWidth() - screen.getWidth() * FOLLOW_BORDER_SIZE))/FOLLOW_SPEED;
 			  
 		if(d_y < screen.getHeight() * FOLLOW_BORDER_SIZE)

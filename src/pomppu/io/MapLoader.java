@@ -55,6 +55,17 @@ public final class MapLoader {
 	// Laatikko
 	
 	static Drawable crate = null;
+	
+	// Kivi
+	
+	static Drawable stone = null;
+	
+	// Maali
+	
+	static Drawable win = null;
+	
+	// Staattiset objektit
+	
 	static ArrayList<ArrayList<StaticObject>> staticObjects = null;
 
 	/**
@@ -100,6 +111,10 @@ public final class MapLoader {
 		water_top 		= ImageFactory.getImage("/resources/water/water_top.png");
 		water 			= ImageFactory.getImage("/resources/water/water.png");
 
+		// Maali
+		
+		win 			= ImageFactory.getImage("/resources/objects/win.png");
+				
 		// Kolikko
 		
 		ArrayList<Animation> tempCoin = AnimationFactory.getAnimations("/resources/objects/coin.png", 32, 32, 0.33, false); 
@@ -108,10 +123,13 @@ public final class MapLoader {
 
 		coin = tempCoin.get(0);
 		
-
 		// Laatikko
 		
 		crate = ImageFactory.getImage("/resources/objects/crate.png");
+
+		// Kivi
+		
+		stone = ImageFactory.getImage("/resources/objects/stone.png");
 
 		ArrayList<ArrayList<StaticObject>> staticObjects = new ArrayList<ArrayList<StaticObject>>();
 		ArrayList<DynamicObject> dynamicObjects = new ArrayList<DynamicObject>();
@@ -207,10 +225,22 @@ public final class MapLoader {
 						tileList.add( new StaticObject( crate, i, j, 0, true ) );
 						break;
 						
-					// Laatikko
+					// Raha
 						
 					case '$':
 						tileList.add( new StaticObject( coin.clone(), i, j, 56, true ) );
+						break;
+						
+					// Maali
+						
+					case 'E':
+						tileList.add( new StaticObject( win, i, j, 200, true ) );
+						break;
+					
+					// Tiili
+						
+					case 'R':
+						tileList.add(new StaticObject( stone, i, j, 10, true ) );
 						break;
 						
 					// Aloituspaikka
@@ -225,24 +255,24 @@ public final class MapLoader {
 						
 					case 'à':
 						tileList.add( null );
-						dynamicObjects.add(createEnemy(AnimationFactory.cloneAnimations(spikey), 2, -1, i*32, j*32));
+						dynamicObjects.add(createEnemy(AnimationFactory.cloneAnimations(spikey), 2, -1, i*32, j*32, 10.0));
 						break;
 
 					case 'á':
 						tileList.add( null );
-						dynamicObjects.add(createEnemy(AnimationFactory.cloneAnimations(spikey), 2, 1, i*32, j*32));
+						dynamicObjects.add(createEnemy(AnimationFactory.cloneAnimations(spikey), 2, 1, i*32, j*32, 10.0));
 						break;
 						
 					case 'è':
 						tileList.add( null );
-						dynamicObjects.add(createEnemy(AnimationFactory.cloneAnimations(spikey), 3, -1, i*32, j*32));
+						dynamicObjects.add(createEnemy(AnimationFactory.cloneAnimations(spikey), 3, -1, i*32, j*32, 10.0));
 						break;
 						
 					case 'é':
 						tileList.add( null );
-						dynamicObjects.add(createEnemy(AnimationFactory.cloneAnimations(spikey), 3, 1, i*32, j*32));
+						dynamicObjects.add(createEnemy(AnimationFactory.cloneAnimations(spikey), 3, 1, i*32, j*32, 10.0));
 						break;
-
+						
 					// Jos ei mitään muuta niin ilmaa sitten! :)
 						
 					default:
@@ -271,7 +301,7 @@ public final class MapLoader {
 	 * @param y Objektin y-aloituskoordinaatti.
 	 * @return Alustettu dynaaminen objekti.
 	 */
-	private static DynamicObject createEnemy(ArrayList<Animation> anims, int type, int direction, int x, int y) {
+	private static DynamicObject createEnemy(ArrayList<Animation> anims, int type, int direction, int x, int y, double jumpspeed) {
 		
 		DynamicObject temp;
 		
@@ -279,6 +309,7 @@ public final class MapLoader {
 		temp.setType(type);
 		temp.setDirection(direction);
 		temp.setPos(x, y);
+		temp.setJumpSpeed(jumpspeed);
 		
 		return temp;
 	}

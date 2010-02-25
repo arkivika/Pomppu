@@ -63,7 +63,7 @@ public class DynamicObject {
 		airborne = true;
 		
 		def_gravity = 0.7;
-		def_jumpspeed = 14.0;
+		def_jumpspeed = 15.0;
 		def_accel = 1.3;
 		def_max_speed = 5.0;
 		def_friction = 0.9;
@@ -312,7 +312,9 @@ public class DynamicObject {
 		if (vel_y < 0.0) {
 			retValue[TOP_COLLIDE] = _map.collide(this, TOP_COLLIDE);
 			for (int i=0; i<3; i++) 
-				if (retValue[TOP_COLLIDE][i] == 0 || retValue[TOP_COLLIDE][i] == 7 || retValue[TOP_COLLIDE][i] == 8 || retValue[TOP_COLLIDE][i] == 9) {
+				if (retValue[TOP_COLLIDE][i] == 0 ||
+				   (retValue[TOP_COLLIDE][i] > 6  && 
+					retValue[TOP_COLLIDE][i] < 50)) {
 					y = (int)(((int)y/32+1)*32);
 					vel_y = 0;
 					break;
@@ -412,6 +414,14 @@ public class DynamicObject {
 		}
 	}
 
+	/**
+	 * Aksessori, jonka avulla asetetaan hyppyvauhti.
+	 * @param speed Haluttu vauhti.
+	 */
+	public void setJumpSpeed(double speed) {
+		def_jumpspeed = speed;
+	}
+	
 	/**
 	 * Aksessori joka palauttaa objektin tyypin. Viittaa siihen, onko kyseessä pelaajan objekti (1) vai tekoälyllä tai muullaa toiminnallisuudella
 	 * varustettu objekti (>1).

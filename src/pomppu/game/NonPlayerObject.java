@@ -61,7 +61,7 @@ public class NonPlayerObject {
 			if (top_col != -1) {}
 			if (bottom_col != -1) {}
 			if (left_col != -1 && left_col < 100) { direction = 1; }
-			if (right_col != -1 && left_col < 100) { direction = -1; }
+			if (right_col != -1 && right_col < 100) { direction = -1; }
 				
 			for (DynamicObject other : others) {
 				if (other != this.getObject()) {

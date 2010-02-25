@@ -66,10 +66,16 @@ public class Player {
 		staticCol = obj.staticCollision(map);
 		
 		for (int i=0; i<4; i++)
-			for (int j=0; j<3; j++)
-				if (staticCol[i][j] == 56) {
-					score++;
+			for (int j=0; j<3; j++) {
+				switch(staticCol[i][j]) {
+					case 56:
+						score++;
+						break;
+					case 200:
+						retValue = -2;
+						break;				
 				}
+			}
 			
 		for (DynamicObject other : others) {
 				
@@ -95,7 +101,6 @@ public class Player {
 			retValue = -1;
 		
 		return retValue;
-		
 	}
 
 	/**
@@ -103,7 +108,6 @@ public class Player {
 	 */
 	public void moveLeft() {
 		obj.advanceFrame();
-		
 		obj.move(-1);
 		keyboard_moving = true;
 	}
@@ -150,6 +154,14 @@ public class Player {
 	 */
 	public int getScore() {
 		return score;
+	}
+	
+	/**
+	 * Aksessori, jonka avulla voidaan lisätä pelaajan pisteitä.
+	 * @param amount Lisättävä määrä.
+	 */
+	public void addToScore(int amount) {
+		score += amount;
 	}
 	
 	/**

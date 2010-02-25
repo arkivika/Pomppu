@@ -131,7 +131,7 @@ public class Map {
 						if (staticObjects.get(index_y).get(index_x+i).collide(obj, part) && staticObjects.get(index_y).get(index_x+i).getActive() ) {
 							
 							retValue[i+1] = staticObjects.get(index_y).get(index_x+i).get_type();
-							if (retValue[i+1] == 56)
+							if (retValue[i+1] == 56 && obj.getType() == 1)
 								staticObjects.get(index_y).get(index_x+i).setActive(false);
 						}
 
@@ -161,7 +161,7 @@ public class Map {
 						if (staticObjects.get(index_y+i).get(index_x).collide(obj, part) && staticObjects.get(index_y+i).get(index_x).getActive() ) {
 							
 							retValue[i+1] = staticObjects.get(index_y+i).get(index_x).get_type();
-							if (retValue[i+1] == 56)
+							if (retValue[i+1] == 56 && obj.getType() == 1)
 								staticObjects.get(index_y+i).get(index_x).setActive(false);
 						}
 

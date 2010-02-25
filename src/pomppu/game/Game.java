@@ -120,79 +120,85 @@ public class Game extends GameState {
 			gui.addToSection(hearts[i], 2, 0);
 		
 		// Peliluuppi. Luokan pihvi! :)
-		while(true) {
-				
-			// Alustetaan / päivitetään fps:n laskemiseen ja reguloimiseen tarvittava arvo.
-			last_ms = System.currentTimeMillis();
-
-			if (d_ms > Pomppu.FRAME_DELAY)
-				d_ms = Pomppu.FRAME_DELAY;
-			
-			// Renderöidään pelitila.
-			render();
-						
-			// Huomioidaan HID-laitteilta saatu informaatio.
-			if (mouse.moved(m_x, m_y)) {}
-			if (keyboard.isPressed(KeyEvent.VK_SHIFT)) {player.run();}
-			if (keyboard.isPressed(KeyEvent.VK_SPACE)) {
-				
-				if (spaceReleased) {
-					player.jump(false);
-					spaceReleased = false;
-				}
-
-				player.jump(true);
-				spaceReleasedTimer = 1;
-			}
-			if (keyboard.isPressed(KeyEvent.VK_LEFT)) {player.moveLeft();}
-			if (keyboard.isPressed(KeyEvent.VK_RIGHT)) {player.moveRight();}
-			if (keyboard.isPressed(KeyEvent.VK_ESCAPE)) { break; }
-			
-			// Välitetään pelaajan status väliaikaiselle muuttujalle, johon voidaan reagoida myöhemmin.
-			int tempStatus = player.update(nonplayerObjects);
+		
+		Game:
+			while(true) {
 					
-			// Pelaaja on kuollut, joten "resume game":n funktio muutetaan "new game":ksi palauttamalla peliluupista arvo 5 0:n sijaan.
-			if (tempStatus == -1) {
-				retValue = Pomppu.GAME_OVER;
-				break;
-			}
-			
-			// Päivitetään ei-pelaaja-objektit.
-			if (nonplayers != null)
-				for ( NonPlayerObject obj : nonplayers ) 
-					obj.update(player.getObject(), nonplayerObjects);
+				// Alustetaan / päivitetään fps:n laskemiseen ja reguloimiseen tarvittava arvo.
+				last_ms = System.currentTimeMillis();
+	
+				if (d_ms > Pomppu.FRAME_DELAY)
+					d_ms = Pomppu.FRAME_DELAY;
+				
+				// Renderöidään pelitila.
+				render();
+							
+				// Huomioidaan HID-laitteilta saatu informaatio.
+				if (mouse.moved(m_x, m_y)) {}
+				if (keyboard.isPressed(KeyEvent.VK_SHIFT)) {player.run();}
+				if (keyboard.isPressed(KeyEvent.VK_SPACE)) {
+					
+					if (spaceReleased) {
+						player.jump(false);
+						spaceReleased = false;
+					}
+	
+					player.jump(true);
+					spaceReleasedTimer = 1;
+				}
+				if (keyboard.isPressed(KeyEvent.VK_LEFT)) {player.moveLeft();}
+				if (keyboard.isPressed(KeyEvent.VK_RIGHT)) {player.moveRight();}
+				if (keyboard.isPressed(KeyEvent.VK_ESCAPE)) { break; }
+				
+				// Välitetään pelaajan status väliaikaiselle muuttujalle, johon voidaan reagoida myöhemmin.
+				int playerStatus = player.update(nonplayerObjects);
+				
+				switch (playerStatus) {
 
-			// Piirretään sydämet
-			gui.clearSection(2,0);
-			for (int i=0; i<5; i++)
-				if (i<player.getHealth())
-					gui.addToSection(heart_on, 2, 0);
+					case -1:
+						retValue = Pomppu.GAME_OVER;
+						break Game;
+					case -2:
+						retValue = Pomppu.GAME_OVER;
+						player.addToScore(100);
+						break Game;
+				}
+				
+				// Päivitetään ei-pelaaja-objektit.
+				if (nonplayers != null)
+					for ( NonPlayerObject obj : nonplayers ) 
+						obj.update(player.getObject(), nonplayerObjects);
+	
+				// Piirretään sydämet
+				gui.clearSection(2,0);
+				for (int i=0; i<5; i++)
+					if (i<player.getHealth())
+						gui.addToSection(heart_on, 2, 0);
+					else
+						gui.addToSection(heart_off, 2, 0);
+				
+				// Päivitetään kamera pelaajan kohdalle.
+				camera.follow(player.getObject());
+				
+				// Lasketaan, kauanko pitää nukkua fps:n reguloimiseksi.
+				d_ms = System.currentTimeMillis()-last_ms;
+				ms = 60-d_ms;
+	
+				try { Thread.sleep(Pomppu.FRAME_DELAY-d_ms); } catch (Exception e) {}
+				
+				if (ms > 60)
+					System.out.println(ms);
+	
+				if (spaceReleasedTimer > 0)
+					spaceReleasedTimer--;
 				else
-					gui.addToSection(heart_off, 2, 0);
-			
-			// Päivitetään kamera pelaajan kohdalle.
-			camera.follow(player.getObject());
-			
-			// Lasketaan, kauanko pitää nukkua fps:n reguloimiseksi.
-			d_ms = System.currentTimeMillis()-last_ms;
-			ms = 60-d_ms;
-
-			try { Thread.sleep(Pomppu.FRAME_DELAY-d_ms); } catch (Exception e) {}
-			
-			if (ms > 60)
-				System.out.println(ms);
-
-			if (spaceReleasedTimer > 0)
-				spaceReleasedTimer--;
-			else
-				spaceReleased = true;
-			
-			// Päivitetään GUI-informaatio.
-			time_left -= (double)(d_ms+Pomppu.FRAME_DELAY)/1000;
-			score.updateText("Coins: " + player.getScore() + " Score: " + calculateScores());
-			time.updateText("Time left: " + (int)time_left);
-			
-		}
+					spaceReleased = true;
+				
+				// Päivitetään GUI-informaatio.
+				time_left -= (double)(d_ms+Pomppu.FRAME_DELAY)/1000;
+				score.updateText("Coins: " + player.getScore() + " Score: " + calculateScores());
+				time.updateText("Time left: " + (int)time_left);
+			}
 	
 		gui.clearSection(0, 0);
 		gui.clearSection(2, 0);

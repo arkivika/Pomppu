@@ -44,10 +44,15 @@ public final class MapLoader {
 
 	// Vesi
 	
-	static Drawable water_platform 	= null;
-	static Drawable water_top 		= null;
-	static Drawable water 			= null;
-
+	static Drawable  water_platform 	= null;
+	static Drawable  water_top 			= null;
+	static Drawable  water 				= null;
+	static Animation waterfall			= null;
+	static Animation waterfall_top		= null;
+	static Animation waterfall_platform	= null;
+	static Animation geyser_top 		= null;
+	static Animation geyser 			= null;
+	
 	// Kolikko
 	
 	static Animation coin = null;
@@ -84,7 +89,7 @@ public final class MapLoader {
 
 		// Viholliset
 		
-		spikey = AnimationFactory.getAnimations("/resources/enemies/spikey.png", 60, 60, 0.3, true);
+		spikey = AnimationFactory.getAnimations("/resources/enemies/spikey.png", 60, 60, 0.3, true, false);
 		
 		if (spikey == null || spikey.size() < 1)
 			throw new IOException("Error! Nonplayer-object \"spikey's\" animations don't exist!");
@@ -110,18 +115,20 @@ public final class MapLoader {
 		water_platform 	= ImageFactory.getImage("/resources/water/water_platform.png");
 		water_top 		= ImageFactory.getImage("/resources/water/water_top.png");
 		water 			= ImageFactory.getImage("/resources/water/water.png");
-
+		
+		waterfall_platform = getSingleAnimation("/resources/water/waterfall_platform.png", 32, 32, 0.5, false);
+		waterfall_top = getSingleAnimation("/resources/water/waterfall_top.png", 32, 32, 0.5, false);
+		waterfall = getSingleAnimation("/resources/water/waterfall.png", 32, 32, 0.5, false);
+		geyser_top = getSingleAnimation("/resources/water/geyser_top.png", 32, 32, 0.5, true);
+		geyser = getSingleAnimation("/resources/water/geyser.png", 32, 32, 0.5, true);
+		
 		// Maali
 		
-		win 			= ImageFactory.getImage("/resources/objects/win.png");
+		win	= ImageFactory.getImage("/resources/objects/win.png");
 				
 		// Kolikko
-		
-		ArrayList<Animation> tempCoin = AnimationFactory.getAnimations("/resources/objects/coin.png", 32, 32, 0.33, false); 
-		if (tempCoin == null || tempCoin.size() < 1)
-			throw new IOException("Error! Nonplayer-object \"coin's\" animations don't exist!");
 
-		coin = tempCoin.get(0);
+		coin = getSingleAnimation("/resources/objects/coin.png", 32, 32, 0.33, false);
 		
 		// Laatikko
 		
@@ -147,8 +154,6 @@ public final class MapLoader {
 			throw new IOException("Error! Couldn't open resource: " + e);
 		}
 
-		parser = new Scanner(new File(staticObjects.getClass().getResource(filepath).getPath()));
-		
 		while(parser.hasNext()) {
 
 			String line = parser.nextLine();
@@ -217,6 +222,21 @@ public final class MapLoader {
 						break;
 					case 'p':
 						tileList.add( new StaticObject( water_platform, i, j, 102, true ) );
+						break;
+					case 'P':
+						tileList.add( new StaticObject( waterfall_platform, i, j, 105, true ) );
+						break;
+					case 'f':
+						tileList.add( new StaticObject( waterfall.clone(), i, j, 103, true ) );
+						break;
+					case 'F':
+						tileList.add( new StaticObject( waterfall_top.clone(), i, j, 106, true ) );
+						break;
+					case 'g':
+						tileList.add( new StaticObject( geyser.clone(), i, j, 104, true ) );
+						break;
+					case 'G':
+						tileList.add( new StaticObject( geyser_top.clone(), i, j, 107, true ) );
 						break;
 						
 					// Laatikko
@@ -312,5 +332,14 @@ public final class MapLoader {
 		temp.setJumpSpeed(jumpspeed);
 		
 		return temp;
+	}
+
+	private static Animation getSingleAnimation(String filepath, int width, int height, double speed, boolean _mirrored) throws IOException {
+		
+		ArrayList<Animation> temp = AnimationFactory.getAnimations(filepath, width, height, speed, false, _mirrored); 
+		if (temp == null || temp.size() < 1)
+			throw new IOException("Error! Nonplayer-object \"" + filepath + "\" animations don't exist!");
+		
+		return temp.get(0);
 	}
 } 

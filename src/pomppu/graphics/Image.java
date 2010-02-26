@@ -36,9 +36,10 @@ public class Image implements Drawable {
 		gfxConf = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
 	
 		URL url = this.getClass().getResource(filepath);
+		
 		if(url == null)
 			throw new IOException("Error! File not found: " + filepath);
-		  
+
 		buffer = ImageIO.read(url);
 		
 		moveToVram();

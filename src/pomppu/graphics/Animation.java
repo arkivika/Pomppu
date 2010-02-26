@@ -21,7 +21,7 @@ import java.awt.Graphics2D;
 public class Animation implements Drawable {
 
 	private double currentFrame, speed;
-	private boolean autoAnimation;
+	private boolean autoAnimation, mirrored;
 	private ArrayList<Image> frames;
 	
 	/**
@@ -31,11 +31,20 @@ public class Animation implements Drawable {
 	 * @param _frames Drawable-rajapinnan toteuttavat oliot, joista animaatio rakennetaan.
 	 * @param _speed Animaation toistonopeus.
 	 */
-	protected Animation(ArrayList<Image> _frames, double _speed) {
+	protected Animation(ArrayList<Image> _frames, double _speed, boolean _mirrored) {
 		frames = _frames;
 		currentFrame = 0;
 		speed = _speed;
 		autoAnimation = true;
+		mirrored = _mirrored;
+	}
+	
+	/**
+	 * Aksessori, joka palauttaa arvonaan animaation framet. Testaustarkoitukseen ainoastaan.
+	 * @return Animaation framet (Image-olio) ArrayList-oliossa.
+	 */
+	protected ArrayList<Image> getFrames() {
+		return frames;
 	}
 
 	/**
@@ -49,9 +58,15 @@ public class Animation implements Drawable {
 		frames.get((int)currentFrame).draw(g, x, y);
 	
 		if (autoAnimation) {
-			currentFrame += speed;
-			if (currentFrame >= frames.size())
-				currentFrame = 0;
+			if (!mirrored) {
+				currentFrame += speed;
+				if (currentFrame >= frames.size())
+					currentFrame = 0; }
+			else {
+				currentFrame -= speed;
+				if (currentFrame < 0)
+					currentFrame = frames.size()-1;
+			}
 		}
 	}
 
@@ -152,6 +167,6 @@ public class Animation implements Drawable {
 	 * @return Kloonattu Animation-olio. 
 	 */
 	public Animation clone() {
-		return new Animation(frames, speed);
+		return new Animation(frames, speed, mirrored);
 	}
 }

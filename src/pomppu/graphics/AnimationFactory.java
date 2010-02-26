@@ -36,9 +36,12 @@ public final class AnimationFactory {
 	 * @return Animaatio-olio.
 	 * @see pomppu.graphics.Animation
 	 */
-	private static Animation createAnimation(BufferedImage buffer, int width, int height, int row, double speed, boolean mirror) {
+	private static Animation createAnimation(BufferedImage buffer, int width, int height, int row, double speed, boolean mirror, boolean _mirrored) {
 
 		ArrayList<Image> drawImages = new ArrayList<Image>();
+
+		if (buffer == null)
+			return new Animation(drawImages, speed, _mirrored);
 		
 		AffineTransform at = AffineTransform.getScaleInstance(-1, 1);
 		at.translate(-width, 0);		
@@ -50,8 +53,8 @@ public final class AnimationFactory {
 			BufferedImage subImage = buffer.getSubimage(i*width, row*height, width, height);
 			drawImages.add(new Image((mirror) ? op.filter(subImage, null) : subImage));
 		}
-		
-		return new Animation(drawImages, speed);
+
+		return new Animation(drawImages, speed, _mirrored);
 	}
 	
 	/**
@@ -65,11 +68,15 @@ public final class AnimationFactory {
 	 * @return ArrayList-olion, joka sisältää luodut Animation-oliot. Mikäli lataus epäonnistuu, palautetaan tyhjä ArrayList-olio.
 	 * @see pomppu.graphics.Animation
 	 */
-	private static ArrayList<Animation> createAnimations(String filepath, int width, int height, double speed, boolean mirror) {
+	private static ArrayList<Animation> createAnimations(String filepath, int width, int height, double speed, boolean mirror, boolean _mirrored) {
 		
 		ArrayList<Animation> returnList = new ArrayList<Animation>();
 
 		try	 {
+
+			if (filepath == null)
+				throw new IOException("Error! File not found: " + filepath); 
+
 			URL url = returnList.getClass().getResource(filepath);
 			if(url == null)
 				throw new IOException("Error! File not found: " + filepath);
@@ -79,9 +86,9 @@ public final class AnimationFactory {
 			int numRow = buffer.getHeight() / height;
 			
 			for (int i=0; i<numRow; i++) {
-				returnList.add(createAnimation(buffer, width, height, i, speed, false));
+				returnList.add(createAnimation(buffer, width, height, i, speed, false, _mirrored));
 				if (mirror)
-					returnList.add(createAnimation(buffer, width, height, i, speed, true));
+					returnList.add(createAnimation(buffer, width, height, i, speed, true, _mirrored));
 			}
 		}
 		catch (IOException e) {
@@ -103,14 +110,16 @@ public final class AnimationFactory {
 	 * @return An ArrayList of Animations. If unsuccessful it returns a dummy ArrayList of Animations of the size 0.
 	 * @see pomppu.graphics.Animation
 	 */
-	public static ArrayList<Animation> getAnimations(String filepath, int width, int height, double speed, boolean mirror) {
+	public static ArrayList<Animation> getAnimations(String filepath, int width, int height, double speed, boolean mirror, boolean _mirrored) {
 	
 		if(animMap.containsKey(filepath))
 			return cloneAnimations(animMap.get(filepath));
 	  
-		ArrayList<Animation> animations = createAnimations(filepath, width, height, speed, mirror);
-		animMap.put(filepath, animations);
+		ArrayList<Animation> animations = createAnimations(filepath, width, height, speed, mirror, _mirrored);
 		
+		if (animations != null && animations.size() != 0)
+			animMap.put(filepath, animations);
+			
 		return animations;
 	}
 	
@@ -135,9 +144,74 @@ public final class AnimationFactory {
 		
 		ArrayList<Animation> animations = new ArrayList<Animation>();
 		
-		for (Animation anim : _animations)
-			animations.add(anim.clone());
+		if (_animations != null)
+			for (Animation anim : _animations)
+				animations.add(anim.clone());
 		
 		return animations;
+	}
+	
+	public static void main(String[] args) {
+
+		try {
+
+			if (animMap == null)
+				failedTest("Couldn't construct the HashMap.");
+	
+			if (!animMap.isEmpty())
+				failedTest("HashMap initially isn't empty.");
+	
+			// Validit parametrit
+			ArrayList<Animation> testAnim = createAnimations("/resources/player/player.png", 32, 50, 0.5, true, false);
+			if (testAnim == null || testAnim.size() <= 0 || testAnim.size() > 4)
+				failedTest("Couldn't create valid animations.");
+	
+			for (Animation anim : testAnim) {
+				
+				if (anim.getFrames().size() != 5)
+					failedTest("Couldn't create valid animation.");
+					
+				if (anim.getHeight() != 50 || anim.getWidth() != 32)
+					failedTest("Invalid dimensions for the animation.");
+			}
+			
+			// Väärä tiedostopolku
+			ArrayList<Animation> failAnim = createAnimations("/resources/player/player.png", 32, 50, 0.5, true, false);
+			testAnim = createAnimations("/resourcessssssss/player/playerrrrrr.png", 32, 50, 0.5, true, false);
+			if (failAnim != null && failAnim.size() > 0)
+				failedTest("Created invalid animations instead of the dummy one.");
+	
+			// null string
+			failAnim = createAnimations(null, 32, 50, 0.5, true, false);
+			if (failAnim != null && failAnim.size() > 0)
+				failedTest("Created invalid animations instead of the dummy one.");
+		
+			// validi klooni
+			ArrayList<Animation> testClone = cloneAnimations(testAnim);
+			if (testClone == testAnim)
+				failedTest("Clone operation failed: same references.");
+			
+			if (testClone.size() != testAnim.size())
+				failedTest("Cloned animations different than the original.");
+			
+			for (int i=0; i<testAnim.size(); i++) {
+				
+				if (testAnim.get(i).getFrames().size() != testClone.get(i).getFrames().size())
+					failedTest("Cloned animations different than the original.");
+				
+				if (testAnim.get(i).getWidth() != testClone.get(i).getWidth() ||
+					testAnim.get(i).getHeight() != testClone.get(i).getHeight())
+					failedTest("Cloned animations' dimensions different than the original.");
+			}
+		}
+		catch (Exception e) {
+			failedTest("Unknown exception.");
+		}
+	}
+	
+	private static void failedTest(String test) {
+
+		System.out.println("TEST FAILED: " + test);
+		System.exit(0);
 	}
 }

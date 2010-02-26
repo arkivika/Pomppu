@@ -9,6 +9,7 @@ import pomppu.io.*;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
 
 /**
  * Päävalikko.
@@ -76,7 +77,7 @@ public class Main extends GameState {
 				menu.setPosition(m_x, m_y);
 			}
 			
-			if (mouse.isPressed(0)) {
+			if (mouse.isPressed(0) || keyboard.isPressed(KeyEvent.VK_ENTER)) {
 				
 				try { Thread.sleep(Pomppu.MOUSE_SLEEP_DELAY); } catch(Exception e) {}
 				

@@ -57,6 +57,10 @@ public final class ImageFactory {
 	 * @see pomppu.graphics.Drawable
 	 */
 	public static Drawable getImage(String filepath) {
+		
+		if (filepath == null)
+			return notFound;
+			
 		Image retImage = imageMap.get(filepath);
 	  
 		if(retImage != null)
@@ -80,5 +84,89 @@ public final class ImageFactory {
 	private static void updateTransparencies()	 {
 		for(Image img : imageMap.values())
 			img.update();
-	}	
+	}
+	
+	/**
+	 * Testipäämetodi, jonka avulla varmistutaan siitä, että luokka toimii kuten sen pitäisi. Tulostaa jokaisen testin sekä sen tuloksen.
+	 * @param args Ei huomioida tässä.
+	 */
+	public static void main(String[] args) {
+
+		try {
+
+			System.out.println("Testing construction phase..");
+			if (transparency != Transparency.BITMASK)
+				failedTest("Transparency not BITMASK initially.");
+			if (imageMap == null)
+				failedTest("Couldn't construct the HashMap.");
+			if (!imageMap.isEmpty())
+				failedTest("HashMap initially not empty.");
+			if (notFound == null)
+				failedTest("Failed creating the dummy image.");
+			System.out.println("..OK!");
+			
+			System.out.println("Trying to update the transparencies of the elements in an empty HashMap..");
+			updateTransparencies();
+			System.out.println("..OK!");
+			
+			System.out.println("Testing getImage with a valid parameter..");
+			Drawable testImage = getImage("/resources/player/player.png");
+			if (testImage == notFound)
+				failedTest("Couldn't create a valid image.");
+			System.out.println("..OK!");
+			
+			System.out.println("Testing the size of the HashMap after 1 addition..");
+			if (imageMap.size() != 1)
+				failedTest("The image didn't get added properly to the HashMap: size not 1.");
+			System.out.println("..OK!");
+				
+			System.out.println("Testing the dimensions of the created valid image..");
+			if (testImage.getHeight() != 100 || testImage.getWidth() != 180)
+				failedTest("Invalid dimensions for the image.");
+			System.out.println("..OK!");
+			
+			System.out.println("Testing getImage with an invalid parameter..");
+			Drawable failImage = getImage("/reso6543urces/234player/pla234yer.png");
+			if (failImage != notFound)
+				failedTest("Created an invalid image instead of the dummy one.");
+			System.out.println("..OK!");
+			
+			System.out.println("Testing getImage with a null parameter..");
+			failImage = getImage(null);
+			if (failImage != notFound)
+				failedTest("Created invalid animations instead of the dummy one.");
+			System.out.println("..OK!");
+		
+			System.out.println("Trying to update the transparencies of the elements in a non-empty HashMap..");
+			updateTransparencies();
+			System.out.println("..OK!");
+			
+			System.out.println("Testing the toggleTransparency-method..");
+			toggleTransparency();
+			if (transparency != Transparency.TRANSLUCENT)
+				failedTest("Transparency not toggled to TRANSLUCENT.");
+			System.out.println("..OK!");
+			
+			System.out.println("Testing the getTransparency-method..");
+			if (getTransparency() != transparency)
+				failedTest("getTransparency didn't return the correct transparency.");
+			System.out.println("..OK!");
+
+			// Kaikki OK!
+			System.out.println("Everything OK with the ImageFactory!");
+		}
+		catch (Exception e) {
+			failedTest("Unknown exception: " + e);
+		}
+	}
+
+	/**
+	 * Apumetodi, joka tulostaa pieleen menneen testin sekä lopettaa ohjelman suorittamisen.
+	 * @param test Pieleen mennyt testi.
+	 */
+	private static void failedTest(String test) {
+
+		System.out.println("TEST FAILED: " + test);
+		System.exit(0);
+	}
 }

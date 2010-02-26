@@ -40,7 +40,7 @@ public class Game extends GameState {
 	 * @param _mouse Käytettävä Mouse-olio.
 	 * @param time_limit Aikaraja kentän läpäisemiseksi (sekuntia).
 	 */	
-	public Game(Camera _cam, GUI _gui, Keyboard _keyboard, Mouse _mouse, int time_limit) throws IOException {
+	public Game(Camera _cam, GUI _gui, Keyboard _keyboard, Mouse _mouse, String _map, int time_limit) throws IOException {
 
 		super(_cam, _gui, _keyboard, _mouse);
 
@@ -51,9 +51,9 @@ public class Game extends GameState {
 		for (int i=0; i<5; i++) 
 			hearts[i] = heart_on;
 		
-		map = MapLoader.readMap("/resources/maps/testmap.map");
+		map = MapLoader.readMap("/resources/maps/" + _map);
 		
-		ArrayList<Animation> playerAnimations = AnimationFactory.getAnimations("/resources/player/player.png", 36, 50, 0.3, true);
+		ArrayList<Animation> playerAnimations = AnimationFactory.getAnimations("/resources/player/player.png", 36, 50, 0.3, true, false);
 
 		if (playerAnimations == null || playerAnimations.size() < 1)
 			throw new IOException("Error! Player animations don't exist!");
@@ -124,7 +124,7 @@ public class Game extends GameState {
 		Game:
 			while(true) {
 					
-				// Alustetaan / päivitetään fps:n laskemiseen ja reguloimiseen tarvittava arvo.
+				// Alustetaan / päivitetään fps:n laskemiseen ja tasaamiseen tarvittava arvo
 				last_ms = System.currentTimeMillis();
 	
 				if (d_ms > Pomppu.FRAME_DELAY)
@@ -133,7 +133,7 @@ public class Game extends GameState {
 				// Renderöidään pelitila.
 				render();
 							
-				// Huomioidaan HID-laitteilta saatu informaatio.
+				// Huomioidaan HID-laitteilta saatu informaatio
 				if (mouse.moved(m_x, m_y)) {}
 				if (keyboard.isPressed(KeyEvent.VK_SHIFT)) {player.run();}
 				if (keyboard.isPressed(KeyEvent.VK_SPACE)) {
@@ -150,7 +150,7 @@ public class Game extends GameState {
 				if (keyboard.isPressed(KeyEvent.VK_RIGHT)) {player.moveRight();}
 				if (keyboard.isPressed(KeyEvent.VK_ESCAPE)) { break; }
 				
-				// Välitetään pelaajan status väliaikaiselle muuttujalle, johon voidaan reagoida myöhemmin.
+				// Välitetään pelaajan tila väliaikaiselle muuttujalle, johon voidaan reagoida myöhemmin
 				int playerStatus = player.update(nonplayerObjects);
 				
 				switch (playerStatus) {
@@ -164,7 +164,7 @@ public class Game extends GameState {
 						break Game;
 				}
 				
-				// Päivitetään ei-pelaaja-objektit.
+				// Päivitetään ei-pelaaja-objektit
 				if (nonplayers != null)
 					for ( NonPlayerObject obj : nonplayers ) 
 						obj.update(player.getObject(), nonplayerObjects);
@@ -177,10 +177,10 @@ public class Game extends GameState {
 					else
 						gui.addToSection(heart_off, 2, 0);
 				
-				// Päivitetään kamera pelaajan kohdalle.
+				// Päivitetään kamera pelaajan kohdalle
 				camera.follow(player.getObject());
 				
-				// Lasketaan, kauanko pitää nukkua fps:n reguloimiseksi.
+				// Lasketaan, kauanko pitää nukkua fps:n tasaamiseksi
 				d_ms = System.currentTimeMillis()-last_ms;
 				ms = 60-d_ms;
 	
@@ -194,7 +194,7 @@ public class Game extends GameState {
 				else
 					spaceReleased = true;
 				
-				// Päivitetään GUI-informaatio.
+				// Päivitetään GUI-informaatio
 				time_left -= (double)(d_ms+Pomppu.FRAME_DELAY)/1000;
 				score.updateText("Coins: " + player.getScore() + " Score: " + calculateScores());
 				time.updateText("Time left: " + (int)time_left);
@@ -214,6 +214,5 @@ public class Game extends GameState {
 	
 		camera.render();
 		camera.renderGUI();	
-	
 	}
 }

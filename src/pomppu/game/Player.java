@@ -33,9 +33,9 @@ public class Player {
 			return;
 
 		score = 0;
-		health_delay = 50;
+		health_delay = 100;
 		health = 5;
-		health_counter = 50;
+		health_counter = 100;
 		
 		map = _map;
 		
@@ -64,40 +64,49 @@ public class Player {
 		obj.update();
 		
 		staticCol = obj.staticCollision(map);
-		
-		for (int i=0; i<4; i++)
-			for (int j=0; j<3; j++) {
-				switch(staticCol[i][j]) {
-					case 56:
-						score++;
-						break;
-					case 200:
-						retValue = -2;
-						break;				
+	
+		if (!obj.isDead()) {
+
+			for (int i=0; i<4; i++)
+				for (int j=0; j<3; j++) {
+					switch(staticCol[i][j]) {
+						case 56:
+							score++;
+							break;
+						case 200:
+							retValue = -2;
+							break;				
+					}
 				}
-			}
-			
-		for (DynamicObject other : others) {
+
+			for (DynamicObject other : others) {
 				
-			if (other.getType() == 2 || other.getType() == 3) {
-			
-				if (obj.dynamicCollision(other, DynamicObject.TOP_COLLIDE) || obj.dynamicCollision(other, DynamicObject.BOTTOM_COLLIDE) ||
-					obj.dynamicCollision(other, DynamicObject.LEFT_COLLIDE) || obj.dynamicCollision(other, DynamicObject.RIGHT_COLLIDE)) {
+				if (other.getType() == 2 || other.getType() == 3) {
 				
-					if (health_counter == health_delay) {
-						health--;
-						health_counter = 0;
+					if (obj.dynamicCollision(other, DynamicObject.TOP_COLLIDE) || obj.dynamicCollision(other, DynamicObject.BOTTOM_COLLIDE) ||
+						obj.dynamicCollision(other, DynamicObject.LEFT_COLLIDE) || obj.dynamicCollision(other, DynamicObject.RIGHT_COLLIDE)) {
+					
+						if (health_counter == health_delay) {
+							health--;
+							obj.bump(other);
+							health_counter = 0;
+						}
 					}
 				}
 			}
-		}
 
-		if (!keyboard_moving)
-			obj.resetAnimation();
+			if (!keyboard_moving)
+				obj.resetAnimation();
 		
-		keyboard_moving = false;
+			keyboard_moving = false;
 			
-		if (obj.offScreen() || health <= 0)
+			if (health <= 0) {
+				try { Thread.sleep(1000); } catch (InterruptedException e) { System.out.println("Couldn't sleep!"); }
+				obj.kill();
+			}
+		}
+		
+		if (obj.offScreen())
 			retValue = -1;
 		
 		return retValue;

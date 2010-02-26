@@ -34,7 +34,7 @@ public class DynamicObject {
 	
 	// Objektin tila-arvot
 	
-	private boolean airborne, keyboard_moving, continue_jumping, offmap, run, active;
+	private boolean airborne, keyboard_moving, continue_jumping, offmap, run, active, dead;
 	private double x, y, vel_x, vel_y, old_x;
 	private int state, type, direction;
 
@@ -59,7 +59,7 @@ public class DynamicObject {
 		
 		x = y = old_x = vel_x = vel_y = state = type = direction = 0;
 
-		offmap = active = false;
+		offmap = active = dead = false;
 		airborne = true;
 		
 		def_gravity = 0.7;
@@ -167,7 +167,8 @@ public class DynamicObject {
 				
 		}
 		
-		x += vel_x;
+		if (!dead)
+			x += vel_x;
 		
 		if (vel_x < 0)
 			direction = -1;
@@ -258,7 +259,7 @@ public class DynamicObject {
 
 		// Vasen törmäys
 		
-		if (vel_x <= 0.0) { 
+		if (vel_x <= 0.0 && !dead) { 
 			 retValue[LEFT_COLLIDE] = _map.collide(this, LEFT_COLLIDE);
 			 for (int i=0; i<3; i++) 
 				if (retValue[LEFT_COLLIDE][i] >= 0 && retValue[LEFT_COLLIDE][i] < 50 && 
@@ -272,7 +273,7 @@ public class DynamicObject {
 
 		// Oikea törmäys
 
-		if (vel_x >= 0.0) { 
+		if (vel_x >= 0.0 && !dead) { 
 			retValue[RIGHT_COLLIDE] = _map.collide(this, RIGHT_COLLIDE);
 			for (int i=0; i<3; i++) 
 				if ((retValue[RIGHT_COLLIDE][i] >= 0 && retValue[RIGHT_COLLIDE][i] < 50 && 
@@ -291,11 +292,15 @@ public class DynamicObject {
 		if (vel_y >= 0.0) {
 			retValue[BOTTOM_COLLIDE] = _map.collide(this, BOTTOM_COLLIDE);
 			for (int i=0; i<3; i++) {
-				if (((retValue[BOTTOM_COLLIDE][i] > -1 && retValue[BOTTOM_COLLIDE][i] < 50) || retValue[BOTTOM_COLLIDE][i] == 102) && 
-				   (retValue[BOTTOM_COLLIDE][i] != 4 && retValue[BOTTOM_COLLIDE][i] != 5 && retValue[BOTTOM_COLLIDE][i] != 6)) {
-					y = (int)((((int)y + animations.get(state).getHeight())/32)*32 - animations.get(state).getHeight());
-					vel_y = 0;
-					airborne = false;
+				if (((retValue[BOTTOM_COLLIDE][i] > -1 && retValue[BOTTOM_COLLIDE][i] < 50) || 
+					  retValue[BOTTOM_COLLIDE][i] == 102 || 
+					  retValue[BOTTOM_COLLIDE][i] == 105) && 
+					 (retValue[BOTTOM_COLLIDE][i] != 4 && retValue[BOTTOM_COLLIDE][i] != 5 && retValue[BOTTOM_COLLIDE][i] != 6)) {
+					if (!dead) {
+						y = (int)((((int)y + animations.get(state).getHeight())/32)*32 - animations.get(state).getHeight());
+						vel_y = 0;
+						airborne = false;
+					}
 					break;
 				}
 				else 
@@ -303,13 +308,12 @@ public class DynamicObject {
 			
 				if (retValue[BOTTOM_COLLIDE][i] == -2)
 						offmap = true;
-				
 			}
 		}
 		
 		// Huipun törmäys
 
-		if (vel_y < 0.0) {
+		if (vel_y < 0.0 && !dead) {
 			retValue[TOP_COLLIDE] = _map.collide(this, TOP_COLLIDE);
 			for (int i=0; i<3; i++) 
 				if (retValue[TOP_COLLIDE][i] == 0 ||
@@ -324,20 +328,28 @@ public class DynamicObject {
 		// Vedessä
 		
 		for (int i=0; i<3; i++)
-			if ((retValue[TOP_COLLIDE][i] 	 > 100 && retValue[TOP_COLLIDE][i] 	  < 103) ||
-				(retValue[BOTTOM_COLLIDE][i] > 100 && retValue[BOTTOM_COLLIDE][i] < 103) ||
-				(retValue[RIGHT_COLLIDE][i]  > 100 && retValue[RIGHT_COLLIDE][i]  < 103) ||
-				(retValue[LEFT_COLLIDE][i] 	 > 100 && retValue[LEFT_COLLIDE][i]   < 103)) {
-				gravity = def_gravity / 2;
+			if (((retValue[TOP_COLLIDE][i] 	 	> 100 && retValue[TOP_COLLIDE][i]		< 105) ||
+				 (retValue[BOTTOM_COLLIDE][i] 	> 100 && retValue[BOTTOM_COLLIDE][i] 	< 105) ||
+				 (retValue[RIGHT_COLLIDE][i]  	> 100 && retValue[RIGHT_COLLIDE][i]  	< 105) ||
+				 (retValue[LEFT_COLLIDE][i]		> 100 && retValue[LEFT_COLLIDE][i]   	< 105)) && !dead) {
+				if (retValue[TOP_COLLIDE][i] == 103 || retValue[BOTTOM_COLLIDE][i] == 103 || retValue[RIGHT_COLLIDE][i] == 103 || retValue[LEFT_COLLIDE][i] == 103)
+					gravity = def_gravity * 3;
+				else if (retValue[TOP_COLLIDE][i] == 104 || retValue[BOTTOM_COLLIDE][i] == 104 || retValue[RIGHT_COLLIDE][i] == 104 || retValue[LEFT_COLLIDE][i] == 104) {
+					vel_y = -30.0;
+					gravity = 0;
+					airborne = true;
+				}
+				else {
+					gravity = def_gravity / 2;
+					max_fall_speed = def_max_fall_speed / 3;
+				}
 				max_speed = def_max_speed / 2;
 				accel = def_accel / 2;
-				max_fall_speed = def_max_fall_speed / 3;
 			}
 		
 		validatePosition();
 
 		return retValue;
-		
 	}
 	
 	/**
@@ -582,5 +594,22 @@ public class DynamicObject {
 	 */
 	public int getDirection() {
 		return direction;
+	}
+	
+	/**
+	 * Aksessori, joka "tappaa" dynaamisen objektin pakottaen sen tippumaan kaiken läpi.
+	 */
+	public void kill() {
+		dead = true;
+		vel_y = -40;
+		airborne = true;
+	}
+	
+	/**
+	 * Aksessori, joka palauttaa arvonaan true, mikäli dynaaminen objekti on elossa. Muuten false.
+	 * @return True, mikäli objekti on kuollut. Muuten false.
+	 */
+	public boolean isDead() {
+		return dead;
 	}
 }

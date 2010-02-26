@@ -86,7 +86,7 @@ public class Pomppu {
 					
 				case NEW_GAME: 
 					try {					
-						state[NEW_GAME] = game = new Game(camera, gui, keyboard, mouse, 500);
+						state[NEW_GAME] = game = new Game(camera, gui, keyboard, mouse, "level_1.map", 500);
 						curState = NEW_GAME;
 					}
 					catch (IOException e) {
@@ -106,7 +106,7 @@ public class Pomppu {
 				case RESUME_GAME: 
 					if (state[NEW_GAME] == null)
 						try {					
-							state[NEW_GAME] = game = new Game(camera, gui, keyboard, mouse, 500);
+							state[NEW_GAME] = game = new Game(camera, gui, keyboard, mouse, "level_1.map", 500);
 							curState = NEW_GAME;
 						}
 						catch (IOException e) {

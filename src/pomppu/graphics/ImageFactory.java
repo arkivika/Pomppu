@@ -94,6 +94,8 @@ public final class ImageFactory {
 
 		try {
 
+			// Alustusvaihe
+			
 			System.out.println("Testing construction phase..");
 			if (transparency != Transparency.BITMASK)
 				failedTest("Transparency not BITMASK initially.");
@@ -105,9 +107,13 @@ public final class ImageFactory {
 				failedTest("Failed creating the dummy image.");
 			System.out.println("..OK!");
 			
+			// updateTransparencies tyhjällä HashMap:lla
+			
 			System.out.println("Trying to update the transparencies of the elements in an empty HashMap..");
 			updateTransparencies();
 			System.out.println("..OK!");
+			
+			// Kuvan lataaminen
 			
 			System.out.println("Testing getImage with a valid parameter..");
 			Drawable testImage = getImage("/resources/player/player.png");
@@ -115,15 +121,21 @@ public final class ImageFactory {
 				failedTest("Couldn't create a valid image.");
 			System.out.println("..OK!");
 			
+			// HashMap:in eheys
+			
 			System.out.println("Testing the size of the HashMap after 1 addition..");
 			if (imageMap.size() != 1)
 				failedTest("The image didn't get added properly to the HashMap: size not 1.");
 			System.out.println("..OK!");
-				
+			
+			// Kuvan eheys
+			
 			System.out.println("Testing the dimensions of the created valid image..");
 			if (testImage.getHeight() != 100 || testImage.getWidth() != 180)
 				failedTest("Invalid dimensions for the image.");
 			System.out.println("..OK!");
+			
+			// Epäkelvon kuvan lataaminen
 			
 			System.out.println("Testing getImage with an invalid parameter..");
 			Drawable failImage = getImage("/reso6543urces/234player/pla234yer.png");
@@ -137,9 +149,21 @@ public final class ImageFactory {
 				failedTest("Created invalid animations instead of the dummy one.");
 			System.out.println("..OK!");
 		
+			// Kuvan uudelleenlataaminen
+			
+			System.out.println("Testing, wether the Image is cloned properly if it already exists in the HashMap..");
+			Drawable testClone = getImage("/resources/player/player.png");
+			if (testClone != testImage)
+				failedTest("The cloned image's reference was not the one that was contained in the HashMap!");
+			System.out.println("..OK!");
+			
+			// updateTransparencies ei-tyhjällä HashMap:lla
+			
 			System.out.println("Trying to update the transparencies of the elements in a non-empty HashMap..");
 			updateTransparencies();
 			System.out.println("..OK!");
+			
+			// toggleTransparency-metodi
 			
 			System.out.println("Testing the toggleTransparency-method..");
 			toggleTransparency();
@@ -147,12 +171,13 @@ public final class ImageFactory {
 				failedTest("Transparency not toggled to TRANSLUCENT.");
 			System.out.println("..OK!");
 			
+			// getTransparency-metodi
+			
 			System.out.println("Testing the getTransparency-method..");
 			if (getTransparency() != transparency)
 				failedTest("getTransparency didn't return the correct transparency.");
 			System.out.println("..OK!");
 
-			// Kaikki OK!
 			System.out.println("Everything OK with the ImageFactory!");
 		}
 		catch (Exception e) {

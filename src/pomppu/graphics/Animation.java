@@ -40,10 +40,10 @@ public class Animation implements Drawable {
 	}
 	
 	/**
-	 * Aksessori, joka palauttaa arvonaan animaation framet. Testaustarkoitukseen ainoastaan.
+	 * Aksessori, joka palauttaa arvonaan animaation framet. Ainoastaan testaustarkoitukseen.
 	 * @return Animaation framet (Image-olio) ArrayList-oliossa.
 	 */
-	protected ArrayList<Image> getFrames() {
+	public ArrayList<Image> getFrames() {
 		return frames;
 	}
 

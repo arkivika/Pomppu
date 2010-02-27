@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.font.*;
 
 /**
- * Teksti-olio.
+ * Teksti-luokka.
  * Mahdollistaa tekstirivien tulostamisen ruudulle Drawable-rajapinnan avulla.
  * @see pomppu.graphics.Drawable
  * @author arkivika

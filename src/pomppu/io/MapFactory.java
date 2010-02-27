@@ -20,7 +20,7 @@ import pomppu.mechanics.*;
  * Kirjastoluokka, jonka avulla karttatiedot ladataan tiedostosta. 
  * @author arkivika
  */
-public final class MapLoader {
+public final class MapFactory {
  
 	// Viholliset
 	
@@ -69,10 +69,6 @@ public final class MapLoader {
 	
 	static Drawable win = null;
 	
-	// Staattiset objektit
-	
-	static ArrayList<ArrayList<StaticObject>> staticObjects = null;
-
 	/**
 	 * Kirjastoluokan metodi, joka avaa tiedoston, parsii sen merkki merkiltä ja rakentaa niistä kartan, joka koostuu sekä
 	 * staattisista (rakennuspalat, "tile") että dynaamisista objekteista (viholliset).
@@ -141,7 +137,10 @@ public final class MapLoader {
 		ArrayList<ArrayList<StaticObject>> staticObjects = new ArrayList<ArrayList<StaticObject>>();
 		ArrayList<DynamicObject> dynamicObjects = new ArrayList<DynamicObject>();
 
-		URL url = staticObjects.getClass().getResource(filepath);
+		URL url = null;
+		
+		if (filepath != null)
+			url = staticObjects.getClass().getResource(filepath);
 
 		if(url == null)
 			throw new IOException("Error! File not found: \"" + filepath + "\"");
@@ -334,6 +333,16 @@ public final class MapLoader {
 		return temp;
 	}
 
+	/**
+	 * Apumetodi, joka luo tiedostosta vain yhden animaation.
+	 * @param filepath Tiedostopolku kuvatiedostolle, joka sisältää animaation.
+	 * @param width Yhden animaatioframen leveys (pikseliä).
+	 * @param height Yhdein animaatioframen korkeus (pikseliä).
+	 * @param speed Animaation nopeus (speed/frame).
+	 * @param _mirrored True, mikäli animaation halutaan etenevän päinvastaisessa järjestyksessä (vain jos autoAnim on päällä), muuten false.
+	 * @return Luotu Animation-olio.
+	 * @throws IOException Mikäli animaatiota ei voitu luoda, tai luotu animaatio ei ole validi.
+	 */
 	private static Animation getSingleAnimation(String filepath, int width, int height, double speed, boolean _mirrored) throws IOException {
 		
 		ArrayList<Animation> temp = AnimationFactory.getAnimations(filepath, width, height, speed, false, _mirrored); 
@@ -341,5 +350,172 @@ public final class MapLoader {
 			throw new IOException("Error! Nonplayer-object \"" + filepath + "\" animations don't exist!");
 		
 		return temp.get(0);
+	}
+	
+	/**
+	 * Testipäämetodi, jonka avulla varmistutaan siitä, että luokka toimii kuten sen pitäisi. Tulostaa jokaisen testin sekä sen tuloksen.
+	 * @param args Ei huomioida tässä.
+	 */
+	public static void main(String[] args) {
+
+		try {
+
+			// Alustuksen testaus
+			
+			System.out.println("Testing the initialization of the objects..");
+			if (spikey 					!= null || 
+				ground_top_left 		!= null || 
+				ground_top_left_inv 	!= null ||
+				ground_top 				!= null ||
+				ground_top_right_inv	!= null ||
+				ground_top_right 		!= null ||
+				ground_left 			!= null ||
+				ground_center 			!= null ||
+				ground_right 			!= null ||
+				ground_bottom_left 		!= null ||
+				ground_bottom_left_inv	!= null ||
+				ground_bottom			!= null ||
+				ground_bottom_right_inv	!= null ||
+				ground_bottom_right 	!= null ||
+				water_platform 			!= null ||
+				water_top 				!= null ||
+				water 					!= null ||
+				waterfall				!= null ||
+				waterfall_top			!= null ||
+				waterfall_platform		!= null ||
+				geyser_top 				!= null ||
+				geyser 					!= null ||
+				coin 					!= null ||
+				crate 					!= null ||
+				stone 					!= null ||
+				win 					!= null )
+				failedTest("One or more objects were not initially null!");
+			System.out.println("..OK!");
+
+			// Yksittäisen animaation lataaminen apumetodilla
+			
+			System.out.println("Testing the getSingleAnimation-helper method..");
+			geyser = getSingleAnimation("/resources/player/player.png", 32, 50, 0.5, false);
+			if (geyser == null || geyser.getFrames().size() != 5)
+				failedTest("getSingleAnimation-method didn't return a valid animation!");
+			System.out.println("..OK!");
+
+			// Vihollisen dynaamisen objektin lataaminen apumetodilla
+			
+			System.out.println("Testing the createEnemy-helper method..");
+			spikey = AnimationFactory.getAnimations("/resources/enemies/spikey.png", 60, 60, 0.3, true, false);
+			DynamicObject testEnemy = createEnemy(spikey, 5, -1, 80, 90, -15);
+			if (testEnemy.getAnimations() != spikey ||
+				testEnemy.getType() != 5 ||
+				testEnemy.getDirection() != -1 ||
+				testEnemy.getX() != 80 ||
+				testEnemy.getY() != 90)
+				failedTest("createEnemy-method didn't return a valid dynamic object for an enemy object!");
+			System.out.println("..OK!");
+
+			// Validin karttatiedoston lataaminen
+
+			System.out.println("Testing the readMap-method..");
+
+			Map testMap = readMap("/resources/maps/testmap.map");
+			if (testMap == null)
+				failedTest("The readMap-method returned a null!");
+			if (spikey 					== null || 
+				ground_top_left 		== null || 
+				ground_top_left_inv 	== null ||
+				ground_top 				== null ||
+				ground_top_right_inv	== null ||
+				ground_top_right 		== null ||
+				ground_left 			== null ||
+				ground_center 			== null ||
+				ground_right 			== null ||
+				ground_bottom_left 		== null ||
+				ground_bottom_left_inv	== null ||
+				ground_bottom			== null ||
+				ground_bottom_right_inv	== null ||
+				ground_bottom_right 	== null ||
+				water_platform 			== null ||
+				water_top 				== null ||
+				water 					== null ||
+				waterfall				== null ||
+				waterfall_top			== null ||
+				waterfall_platform		== null ||
+				geyser_top 				== null ||
+				geyser 					== null ||
+				coin 					== null ||
+				crate 					== null ||
+				stone 					== null ||
+				win 					== null )
+				failedTest("One or more objects were not initialized correctly!");
+			
+			// Validin karttatiedoston tarkistaminen
+			
+			if (testMap.getDynamicObjects().size() != 5)
+				failedTest("Testmap contains the wrong number of dynamic objects!");
+
+			if (testMap.getPlayerStartX() != 65)
+				failedTest("Player starting X-coordinate invalid!");
+			if (testMap.getPlayerStartY() != 545)
+				failedTest("Player starting Y-coordinate invalid!");
+
+			if (testMap.getStaticObjects().size() != 20)
+				failedTest("Invalid vertical size of the map!");
+			if (testMap.getStaticObjects().get(0).size() != 80)
+				failedTest("Invalid horizontal size of the map!");
+			
+			int nulls = 0;
+			int floor = 0;
+			
+			for (int j=0; j<20; j++)
+				for (int i=0; i<80; i++) 
+					if (testMap.getTileType(i, j) == -1)
+						nulls++;
+					else if (testMap.getTileType(i, j) == 2)
+						floor++;
+			
+			if (floor != 80)
+				failedTest("The number of floor tiles was incorrect!");
+			if (nulls != 1520)
+				failedTest("The number of null tiles was incorrect!");
+
+			System.out.println("..OK!");
+
+			// Epäkelvon karttatiedoston lataaminen null-stringillä
+
+			System.out.println("Trying to load a map with null-parameter..");
+			try {
+				testMap = readMap(null);
+				failedTest("Loaded an unknown map despite the null path!");
+			}
+			catch (IOException e) {
+				System.out.println("..OK!");
+			}
+
+			// Epäkelvon karttatiedoston lataaminen virheellisellä tiedostopolulla
+			
+			System.out.println("Trying to load a map with an invalid path..");
+			try {
+				testMap = readMap("kukkelikoo!!!!!!");
+				failedTest("Loaded an unknown map despite the null path!");
+			}
+			catch (IOException e) {
+				System.out.println("..OK!");
+			}
+
+			System.out.println("Everything OK with the MapFactory!");
+		}
+		catch (Exception e) {
+			failedTest("Unknown exception: " + e);
+		}
+	}
+
+	/**
+	 * Apumetodi, joka tulostaa pieleen menneen testin sekä lopettaa ohjelman suorittamisen.
+	 * @param test Pieleen mennyt testi.
+	 */
+	private static void failedTest(String test) {
+
+		System.out.println("TEST FAILED: " + test);
+		System.exit(0);
 	}
 } 

@@ -54,6 +54,19 @@ public class Map {
 	public int getPlayerStartY() {
 		return (p_y*32)+1;
 	}
+	
+	/**
+	 * Aksessori, joka palauttaa arvonaan staattisen objektin tyypin halutusta (i,j)-indeksistä.
+	 * @param i Haluttu vaakarivin indeksi.
+	 * @param j Haluttu pystyrivin indeksi.
+	 * @return Staattisen objektin tyyppi.
+	 */
+	public int getTileType(int i, int j) {
+		if (staticObjects.get(j) != null)
+			if (staticObjects.get(j).get(i) != null)
+				return staticObjects.get(j).get(i).get_type();
+		return -1;
+	}
 
 	/**
 	 * Aksessori, joka palauttaa arvonaan Map-olion sisältämän staattiset objektit.

@@ -51,7 +51,7 @@ public class Game extends GameState {
 		for (int i=0; i<5; i++) 
 			hearts[i] = heart_on;
 		
-		map = MapLoader.readMap("/resources/maps/" + _map);
+		map = MapFactory.readMap("/resources/maps/" + _map);
 		
 		ArrayList<Animation> playerAnimations = AnimationFactory.getAnimations("/resources/player/player.png", 36, 50, 0.3, true, false);
 

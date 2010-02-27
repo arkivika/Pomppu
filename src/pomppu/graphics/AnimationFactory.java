@@ -151,64 +151,192 @@ public final class AnimationFactory {
 		return animations;
 	}
 	
-	public static void main(String[] args) {
+	/**
+	 * Testipäämetodi, jonka avulla varmistutaan siitä, että luokka toimii kuten sen pitäisi. Tulostaa jokaisen testin sekä sen tuloksen.
+	 * @param args Ei huomioida tässä.
+	 */
+	public static void main(String args[])	{
 
 		try {
-
-			if (animMap == null)
+			// Alustuksen testaus
+			System.out.println("Testing construction phase...");
+			if(animMap == null)
 				failedTest("Couldn't construct the HashMap.");
-	
-			if (!animMap.isEmpty())
-				failedTest("HashMap initially isn't empty.");
-	
-			// Validit parametrit
+			System.out.print("..");
+			 
+			if(!animMap.isEmpty())
+				failedTest("HashMap initially not empty");
+			System.out.print("..");
+			 
+			// Tyhjän HashMap:in päivittäminen
+			updateTransparencies();
+			System.out.println("..OK!");
+			 
+			System.out.println("Testing spritesheet loading method...");
+
+			// Animaation lataaminen valideilla parametreilla
 			ArrayList<Animation> testAnim = createAnimations("/resources/player/player.png", 32, 50, 0.5, true, false);
-			if (testAnim == null || testAnim.size() <= 0 || testAnim.size() > 4)
-				failedTest("Couldn't create valid animations.");
-	
-			for (Animation anim : testAnim) {
+			if(testAnim == null || testAnim.size() <= 0 || testAnim.size() > 4)
+				failedTest("Couldn't create valid ArrayList of Animations (Spritesheet method)");
+			System.out.print("..");
+			 
+			for(Animation anim : testAnim) {
 				
-				if (anim.getFrames().size() != 5)
-					failedTest("Couldn't create valid animation.");
-					
-				if (anim.getHeight() != 50 || anim.getWidth() != 32)
-					failedTest("Invalid dimensions for the animation.");
+				if(anim.getFrames().size() != 5)
+					failedTest("Couldn't create valid Animation (Spritesheet method)");
+				System.out.print("..");
+			 
+				if(anim.getHeight() != 50 || anim.getWidth() != 32)
+					failedTest("Dimensions invalid for Animation (Spritesheet method)");
+				System.out.print("..");
 			}
+			 
+			// Animaation lataaminen null-stringillä
+			ArrayList<Animation> failAnim = createAnimations(null, 64, 64, 0.3, true, false);
+			if(failAnim != null && failAnim.size() > 0)
+				failedTest("Created invalid Animation instead of a dummy one. (Spritesheet method)");
+			System.out.print("..");
+			 
+			// Animaation lataaminen kelvottomalla tiedostopolulla
+			failAnim = createAnimations("töttöröödz", 64, 64, 0.3, true, false);
+			if(failAnim != null && failAnim.size() > 0)
+				failedTest("Created invalid Animation instead of a dummy one. (Spritesheet method)");
+			System.out.println("..OK!");
+			 
+			System.out.println("Testing cloning method...");
 			
-			// Väärä tiedostopolku
-			ArrayList<Animation> failAnim = createAnimations("/resources/player/player.png", 32, 50, 0.5, true, false);
-			testAnim = createAnimations("/resourcessssssss/player/playerrrrrr.png", 32, 50, 0.5, true, false);
-			if (failAnim != null && failAnim.size() > 0)
-				failedTest("Created invalid animations instead of the dummy one.");
-	
-			// null string
-			failAnim = createAnimations(null, 32, 50, 0.5, true, false);
-			if (failAnim != null && failAnim.size() > 0)
-				failedTest("Created invalid animations instead of the dummy one.");
-		
-			// validi klooni
-			ArrayList<Animation> testClone = cloneAnimations(testAnim);
-			if (testClone == testAnim)
-				failedTest("Clone operation failed: same references.");
-			
-			if (testClone.size() != testAnim.size())
-				failedTest("Cloned animations different than the original.");
-			
-			for (int i=0; i<testAnim.size(); i++) {
+			// Eheän kloonin luominen
+			ArrayList<Animation> cloneAnim = cloneAnimations(testAnim);
+			if(cloneAnim == testAnim)
+				failedTest("Clone operation failed, references were the same. (Cloning method)");
+			System.out.print("..");
+			 
+			if(cloneAnim.size() != testAnim.size())
+				failedTest("Cloned Animation different than original. (Cloning method)");
+			System.out.print("..");
+			 
+			for(int i = 0; i < testAnim.size(); i++) {
 				
-				if (testAnim.get(i).getFrames().size() != testClone.get(i).getFrames().size())
-					failedTest("Cloned animations different than the original.");
-				
-				if (testAnim.get(i).getWidth() != testClone.get(i).getWidth() ||
-					testAnim.get(i).getHeight() != testClone.get(i).getHeight())
-					failedTest("Cloned animations' dimensions different than the original.");
+				if(testAnim.get(i).getFrames().size() != cloneAnim.get(i).getFrames().size())
+					failedTest("Cloned Animation different than original. (Cloning method)");
+				System.out.print("..");
+			 
+				if(testAnim.get(i).getHeight() != cloneAnim.get(i).getHeight() ||
+				   testAnim.get(i).getWidth() != cloneAnim.get(i).getWidth())
+					failedTest("Dimensions invalid for cloned Animation (Cloning method)");
+			
+				System.out.print("..");
 			}
+			 
+			// Epäkelvon kloonin lataaminen. Korvike animaation palauttaminen
+			failAnim = cloneAnimations(failAnim);
+			if(failAnim != null && failAnim.size() > 0)
+				failedTest("Clone became an invalid Animation instead of a dummy one. (Cloning method)");
+			System.out.print("..");
+			 
+			// Epäkelpo klooni null-parametrillä
+			failAnim = cloneAnimations(null);
+			if(failAnim != null && failAnim.size() > 0)
+				failedTest("Clone became an invalid Animation instead of a dummy one. (Cloning method)");
+			System.out.println("..OK!");
+			 
+			System.out.println("Testing HashMap method...");
+			// Kelvollisilla parametreillä
+			testAnim = getAnimations("/resources/player/player.png", 32, 50, 0.5, true, false);
+			if(testAnim == null || testAnim.size() <= 0 || testAnim.size() > 4)
+				failedTest("Couldn't create valid animation (HashMap method)");
+			System.out.print("..");
+			 
+			for(Animation anim : testAnim) {
+				if(anim.getFrames().size() != 5)
+					failedTest("Couldn't create valid ArrayList of Animations (HashMap method)");
+				System.out.print("..");
+			 
+				if(anim.getHeight() != 50 || anim.getWidth() != 32)
+					failedTest("Dimensions invalid for animation (HashMap method)");
+				System.out.print("..");
+			}
+			 
+			if(animMap.size() != 1)
+				failedTest("HashMap size invalid (" + animMap.size() + ") (HashMap method)");
+			System.out.print("..");
+			 
+			// Ei-tyhjän HashMap:in päivittäminen
+			updateTransparencies();
+			System.out.print("..");
+			 
+			// Animaation lataaminen null-stringillä
+			failAnim = getAnimations(null, 64, 64, 0.3, true, false);
+			if(failAnim != null && failAnim.size() > 0)
+				failedTest("Created invalid Animation instead of a dummy one. (HashMap method)");
+			System.out.print("..");
+			 
+			// Animaation lataaminen epäkelvolla tiedostopolulla 
+			failAnim = getAnimations("töttöröödz", 64, 64, 0.3, true, false);
+			if(failAnim != null && failAnim.size() > 0)
+				failedTest("Created invalid Animation instead of a dummy one. (HashMap method)");
+			System.out.print("..");
+			 
+			// Eheän kloonin luominen HashMap:ista.
+			cloneAnim = getAnimations("/resources/player/player.png", 32, 50, 0.3, true, false);
+			if(cloneAnim == testAnim)
+				failedTest("Clone operation failed, references were the same. (HashMap method)");
+			System.out.print("..");
+			 
+			if(cloneAnim.size() != testAnim.size())
+				failedTest("Cloned Animation different than original. (HashMap method)");
+			System.out.print("..");
+			 
+			for(int i = 0; i < testAnim.size(); i++) {
+				
+				if(testAnim.get(i).getFrames().size() != cloneAnim.get(i).getFrames().size())
+					failedTest("Cloned animation different than original. (HashMap method)");
+				System.out.print("..");
+				 
+				if(testAnim.get(i).getHeight() != cloneAnim.get(i).getHeight() ||
+				   testAnim.get(i).getWidth() != cloneAnim.get(i).getWidth())
+					failedTest("Dimensions invalid for cloned Animation (HashMap method)");
+				
+				System.out.print("..");
+			}
+			 
+			if(animMap.size() != 1)
+				failedTest("HashMap size invalid (" + animMap.size() + ") (HashMap method)");
+			System.out.println("..OK!");
+			 
+			System.out.println("Testing BufferedImage method...");
+			// Animaation luominen BufferedImage-oliosta
+			Animation test = createAnimation(new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB), 64, 64, 0, 0.33, false, false);
+			if(test == null || test.getFrames().size() != 1)
+				failedTest("Couldn't create valid animation (BufferedImage method)");
+			System.out.print("..");
+			
+			if(test.getHeight() != 64 || test.getWidth() != 64)
+				failedTest("Animation dimensions invalid (BufferedImage method)");
+			System.out.print("..");
+			 
+			// Animaation luominen BufferedImage-oliosta null parametrilla
+			Animation fail = createAnimation(null, 64, 64, 0, 0.33, false, false);
+			if(fail != null && fail.getFrames().size() > 0)
+				failedTest("Created invalid Animation instead of a dummy one. (BufferedImage method)");
+			System.out.print("..");
+			 
+			// Animaation luominen BufferedImage-oliosta väärillä arvoilla
+			fail = createAnimation(new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB), 1337, 1337, 15, 0.33, false, false);
+			if(fail != null && fail.getFrames().size() > 0)
+				failedTest("Created invalid Animation instead of a dummy one. (BufferedImage method)");
+			System.out.println("..OK!");
 		}
-		catch (Exception e) {
-			failedTest("Unknown exception.");
+		catch(Exception e) {
+			failedTest("Unknown exception: " + e);
 		}
+	System.out.println("Everything OK with the AnimationFactory!");
 	}
 	
+	/**
+	 * Apumetodi, joka tulostaa pieleen menneen testin sekä lopettaa ohjelman suorittamisen.
+	 * @param test Pieleen mennyt testi.
+	 */
 	private static void failedTest(String test) {
 
 		System.out.println("TEST FAILED: " + test);

@@ -38,7 +38,7 @@ public class DynamicObject {
 	private double x, y, vel_x, vel_y, old_x;
 	private int state, type, direction;
 
-	// Objektin animaatio
+	// Objektin animaatiot
 	
 	private ArrayList<Animation> animations;
 	
@@ -611,5 +611,13 @@ public class DynamicObject {
 	 */
 	public boolean isDead() {
 		return dead;
+	}
+	
+	/**
+	 * Aksessori, joka palauttaa arvonaan objektin animaatiot.
+	 * @return Objektin animaatiot.
+	 */
+	public ArrayList<Animation> getAnimations() {
+		return animations;
 	}
 }
